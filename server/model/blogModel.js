@@ -1,48 +1,69 @@
-// models/News.js
 const mongoose = require('mongoose');
 
-// Định nghĩa Schema (cấu trúc dữ liệu)
+// Schema cho từng section trong blog
+const SectionSchema = new mongoose.Schema({
+  title: { type: String, required: true },  // ví dụ: "Description of ....", "Feature of ...."
+  slug: { type: String, required: true },   // ví dụ: "description"
+  type: { type: String, required: true },   // ví dụ:"Description", "Feature", "Content"
+  content: { type: String, required: true }, // HTML hoặc Markdown
+}, { _id: false });
+
+// Blog Schema chính
 const BlogSchema = new mongoose.Schema({
-  // Mongoose tự động tạo _id, nên không cần định nghĩa 'id'
-  
-  date: {
-    type: String, // Lưu trữ ngày tháng dưới dạng chuỗi (String)
-    required: true,
-  },
   title: {
     type: String,
     required: true,
-    trim: true, // Loại bỏ khoảng trắng ở đầu/cuối
+    trim: true
   },
-  excerpt: {
+  slug: {
     type: String,
     required: true,
-    trim: true,
+    unique: true
+  },
+  author: {
+    type: String,
+    default: 'Admin'
   },
   image: {
     type: String,
-    default: '/default-image.jpg', // Có thể đặt giá trị mặc định
+    default: '/default-image.jpg'
   },
-  category: {
+  excerpt: {
     type: String,
-    required: true,
-    enum: ['Events', 'Products', 'General'], // Giới hạn các giá trị có thể
+    trim: true
   },
-  // Bạn có thể thêm timestamp để theo dõi thời gian tạo/cập nhật
+  informationId: { // liên kết đến bảng Information (danh mục)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Information',
+    required: true
+  },
+  tags: [{
+    type: String,
+    trim: true
+  }],
+  sections: [SectionSchema], // các phần nhỏ trong bài
+  status: {
+    type: String,
+    enum: ['draft', 'published'],
+    default: 'draft'
+  },
+  publishedAt: {
+    type: Date
+  }
 }, {
-  timestamps: true // Tự động thêm createdAt và updatedAt
+  timestamps: true // tự động thêm createdAt, updatedAt
 });
 
+// Tạo virtual "id"
 BlogSchema.virtual('id').get(function () {
-    return this._id.toHexString();
+  return this._id.toHexString();
 });
 
+// Hiển thị virtuals khi toJSON
 BlogSchema.set('toJSON', {
-    virtuals: true,
+  virtuals: true
 });
 
-// Tạo Model từ Schema
+// Xuất model
 const Blog = mongoose.model('Blog', BlogSchema);
-
 module.exports = Blog;
-module.BlogSchema = BlogSchema;

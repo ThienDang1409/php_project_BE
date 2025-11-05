@@ -29,6 +29,10 @@ app.use('/api/blog', blogRoute);
 const imageRoute = require('./route/imageRoute');
 app.use('/api/image', imageRoute);
 
+// Information route (reusable)
+const informationRoute = require('./route/informationRoute');
+app.use('/api/information', informationRoute);
+
 // Simple static serving for a possible frontend (optional)
 app.use(express.static(path.join(__dirname, '..', '..')));
 
